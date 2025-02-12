@@ -25,6 +25,16 @@
             padding: 10px;
             border-radius: 5px;
         }
+
+        @media (max-width: 768px) {
+            #map {
+                height: 400px;
+            }
+            .style-selector {
+                top: 20px;
+                left: 20px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -110,7 +120,7 @@
                     console.error('Error fetching feature info:', error);
                     L.popup()
                         .setLatLng(e.latlng)
-                        .setContent("Gagal memuat data.")
+                        .setContent("Gagal memuat data. Silakan coba lagi.")
                         .openOn(map);
                 });
         }
@@ -123,8 +133,8 @@
             var point = map.latLngToContainerPoint(latlng, map.getZoom()),
                 size = map.getSize(),
                 bounds = map.getBounds(),
-                sw = bounds.getSouthWest(),
-                ne = bounds.getNorthEast();
+                southwest = bounds.getSouthWest(),
+                northeast = bounds.getNorthEast();
 
             var defaultParams = {
                 request: 'GetFeatureInfo',
@@ -133,7 +143,7 @@
                 styles: layer.wmsParams.styles,
                 version: layer.options.version || '1.1.1',
                 format: layer.options.format,
-                bbox: [sw.lng, sw.lat, ne.lng, ne.lat].join(','),
+                bbox: [southwest.lng, southwest.lat, northeast.lng, northeast.lat].join(','),
                 height: size.y,
                 width: size.x,
                 layers: layer.options.layers,
@@ -150,8 +160,8 @@
 
         legend.onAdd = function (map) {
             var div = L.DomUtil.create('div', 'legend');
-            div.innerHTML += "<h4>LEGENDA</h4>";
-            div.innerHTML += '<img id="legendImage" src="https://geoserver.piarea.co.id/geoserver/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER=mangrove:Mangrove-JKT-2024&STYLE=mangrove_kerapatan" alt="legend">';
+            div.innerHTML += "<h4>LEGENDA</h4>"; //Judul Legenda
+            div.innerHTML += '<img id="legendImage" src="https://geoserver.piarea.co.id/geoserver/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER=mangrove:Mangrove-JKT-2024&STYLE=mangrove_kerapatan" alt="legend">'; //Ambil aset Legenda dari geoserver
             return div;
         };
 
@@ -173,31 +183,6 @@
 
             // Update legenda berdasarkan style yang dipilih
             var legendUrl = `https://geoserver.piarea.co.id/geoserver/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER=mangrove:Mangrove-JKT-2024&STYLE=${style1}`;
-            document.getElementById('legendImage').src = legendUrl;
-        }
-
-        // Event listener untuk dropdown style selector
-        document.getElementById('styleSelect').addEventListener('change', function() {
-            var selectedStyle = this.value;
-            changeStyle(selectedStyle);
-        });
-
-        // Fungsi untuk mengubah style berdasarkan pilihan
-        function changeStyle(style2) {
-            // Hapus layer WMS sebelumnya
-            map.removeLayer(wmsLayer);
-
-            // Tambahkan lapisan WMS dengan style baru
-            wmsLayer = L.tileLayer.wms('https://geoserver.piarea.co.id/geoserver/wms', {
-                layers: 'mangrove:Mangrove-JKT-2024', // Ganti 'workspace:layername' dengan nama layer Anda
-                format: 'image/png',
-                transparent: true,
-                styles: style2, // Ganti style sesuai pilihan
-                attribution: "GeoServer WMS",
-            }).addTo(map);
-
-            // Update legenda berdasarkan style yang dipilih
-            var legendUrl = `https://geoserver.piarea.co.id/geoserver/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER=mangrove:Mangrove-JKT-2024&STYLE=${style2}`;
             document.getElementById('legendImage').src = legendUrl;
         }
 
